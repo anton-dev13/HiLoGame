@@ -24,6 +24,26 @@
 
 #include "Random.h"
 
+void ignoreLine()
+{
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+
+bool handleFailedExtraction()
+{
+    if (std::cin.fail())
+    {
+        if (std::cin.eof())
+        {
+            std::exit(0);
+        }
+        std::cin.clear();
+        ignoreLine();
+        return true;
+    }
+    return false;
+}
+
 void playGame(int min, int max, int guesses)
 {
     int secretNumber{ Random::get(min, max) };
@@ -36,6 +56,15 @@ void playGame(int min, int max, int guesses)
         std::cout << "Guess #" << i + 1 << ": ";
         int guess{};
         std::cin >> guess;
+
+        if (handleFailedExtraction() || guess > max || guess < min)
+        {
+            std::cout << "Invalid input! Please try again\n";
+            i--;
+            continue;
+        }
+
+        ignoreLine();
 
         if (guess > secretNumber)
             std::cout << "Your guess is too high.\n";
@@ -67,11 +96,15 @@ bool playAgain()
         std::cout << "Would you like to play again (y/n)? ";
         std::cin >> op;
 
+        ignoreLine();
+
         if (op == 'y')
             return true;
 
         if (op == 'n')
             return false;
+
+        std::cout << "Invalid input! Please try again\n";
 
     } while (op != 'y' || op != 'n');
     return true;
